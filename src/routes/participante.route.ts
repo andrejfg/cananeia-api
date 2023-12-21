@@ -29,6 +29,15 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
         set.status = 'Not Found' // Status 404
       }
     })
+    .get('/whoami', async ({ set, getCurrentUser }) => {
+      const currentUser = await getCurrentUser()
+      const participante = await findOne(currentUser.sub)
+      if (participante) {
+        return participante
+      } else {
+        set.status = 'Not Found' // Status 404
+      }
+    })
     .post(
       '/',
       async ({ body, set }) => {

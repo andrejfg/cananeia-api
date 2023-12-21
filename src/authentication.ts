@@ -8,7 +8,8 @@ import prisma from './database/prisma'
 
 const jwtPayloadSchema = t.Object({
   sub: t.String(),
-  userId: t.Optional(t.String()),
+  nome: t.String(),
+  perfilUrl: t.Optional(t.String()),
 })
 
 export const authentication = new Elysia()
@@ -48,9 +49,10 @@ export const authentication = new Elysia()
       signUser: async (payload: Static<typeof jwtPayloadSchema>) => {
         setCookie('auth', await jwt.sign(payload), {
           httpOnly: true,
-          maxAge: 86400 * 86400,
+          maxAge: 4 * 86400,
           path: '/',
         })
+        // console.log(cookie.auth)
       },
       signOut: () => {
         removeCookie('auth')
@@ -60,12 +62,11 @@ export const authentication = new Elysia()
   .derive(({ getCurrentUser }) => {
     return {
       isComissao: async () => {
-        const { userId } = await getCurrentUser()
+        const { sub } = await getCurrentUser()
         const participante = await prisma.participante.findUnique({
-          where: { usuarioId: userId },
-          include: { polo: true },
+          where: { usuarioId: sub },
         })
-        return !participante?.polo?.comissao
+        return participante?.comissao
       },
     }
   })

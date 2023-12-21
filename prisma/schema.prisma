@@ -26,7 +26,7 @@ model Participante{
   id String @id @default(uuid())
   nome String
   comissao Boolean @default(false)
-  perfilUrl String?
+  perfilImagem Imagem? 
   publicacoes Publicacao[]
   cometarios Comentario[]
   reacao Reacao[]
@@ -44,19 +44,32 @@ model Participante{
 model Polo{
   id String @id @default(uuid())
   nome String @unique
-  perfilUrl String?
   numero String
   participante Participante[]
 
+  perfilImagem Imagem? 
   usuarioId String @unique
   usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("polos")
 }
 
+model Imagem{
+  url String @id
+  hash String
+  proporcao String @default("1:1")
+
+  poloId String? @unique
+  polo Polo? @relation(fields: [poloId], references: [id], onDelete: Cascade)
+  participanteId String? @unique
+  participante Participante? @relation(fields: [participanteId], references: [id], onDelete: Cascade)
+  publicacaoId String? @unique
+  publicacao Publicacao? @relation(fields: [publicacaoId], references: [id], onDelete: Cascade)
+}
+
 model Publicacao{
   id String @id @default(uuid())
-  imagemUrl String
+  perfilImagem Imagem? 
   descricao String
   aceito Boolean @default(false)
 

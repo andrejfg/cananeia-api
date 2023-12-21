@@ -4,17 +4,18 @@ import prisma from '../database/prisma'
 class ParticipanteRepository {
   async findAll() {
     return await prisma.participante.findMany({
-      include: { polo: true },
+      include: { polo: true, perfilImagem: true },
     })
   }
 
   async findById(id: string) {
     return await prisma.participante.findFirst({
       where: { id },
-      include: { polo: true },
+      include: { polo: true, perfilImagem: true },
     })
   }
 
+  // TODO: IMAGE
   async add(data: AddParticipanteDTO) {
     const { poloId, nome, ...usuario } = data
     const poloData = await prisma.polo.findUnique({
@@ -23,10 +24,11 @@ class ParticipanteRepository {
     if (!poloData) {
       return null
     }
+
     const { id: usuarioId } = await prisma.usuario.create({ data: usuario })
     const newParticipante = await prisma.participante.create({
       data: { nome, usuarioId, poloId },
-      include: { usuario: true, polo: true },
+      include: { polo: true, perfilImagem: true },
     })
     return newParticipante
   }
@@ -37,6 +39,7 @@ class ParticipanteRepository {
     })
   }
 
+  // TODO: IMAGE
   async updateById(id: string, data: UpdateParticipanteDTO) {
     const { poloId, nome, ...newUser } = data
     const participante = await this.findById(id)
