@@ -10,18 +10,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Example{
-  id String @id @default(uuid())
-  name String 
-
-  @@map("examples")
-}
-
 model Usuario{
   id String @id @default(uuid())
   usuario String
   senha String
-  perfilUrl String?
 
   polo Polo?
   participante Participante?
@@ -33,13 +25,17 @@ model Usuario{
 model Participante{
   id String @id @default(uuid())
   nome String
+  comissao Boolean @default(false)
+  perfilUrl String?
   publicacoes Publicacao[]
   cometarios Comentario[]
   reacao Reacao[]
 
-  polo ParticipantePolo?
+  poloId String 
+  polo Polo? @relation(fields: [poloId], references: [id], onDelete: Cascade)
+
   usuarioId String @unique
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("participantes")
 }
@@ -47,26 +43,15 @@ model Participante{
 // Usuário administrador
 model Polo{
   id String @id @default(uuid())
-  nome String
+  nome String @unique
+  perfilUrl String?
   numero String
-  participantes ParticipantePolo[]
+  participante Participante[]
 
   usuarioId String @unique
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("polos")
-}
-
-model ParticipantePolo{
-  id String @id @default(uuid())
-  comissao Boolean @default(false)
-
-  poloId String 
-  polo   Polo @relation(fields: [poloId], references: [id])
-  participanteId String @unique
-  participante Participante @relation(fields: [participanteId], references: [id])
-
-  @@map("participantes_polo")
 }
 
 model Publicacao{
@@ -83,7 +68,7 @@ model Publicacao{
   acceptedAt DateTime?
 
   participanteId String
-  participante Participante @relation(fields: [participanteId], references: [id])
+  participante Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
 
   @@map("publicacoes")
 }
@@ -99,9 +84,9 @@ model Comentario{
   acceptedAt DateTime?
 
   participanteId String
-  participante Participante @relation(fields: [participanteId], references: [id])
+  participante Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
   publicacaoId String
-  publicacao Publicacao @relation(fields: [publicacaoId], references: [id])
+  publicacao Publicacao @relation(fields: [publicacaoId], references: [id], onDelete: Cascade)
 
   @@map("comentarios")
 }
@@ -115,12 +100,12 @@ model Reacao{
   tipo ReationENUM @default(LOVE)
 
   publicacaoId String?
-  publicacao Publicacao? @relation(fields: [publicacaoId], references: [id])
+  publicacao Publicacao? @relation(fields: [publicacaoId], references: [id], onDelete: Cascade)
   comentarioId String?
-  comentario Comentario? @relation(fields: [comentarioId], references: [id])
+  comentario Comentario? @relation(fields: [comentarioId], references: [id], onDelete: Cascade)
 
   participanteId String
-  participante Participante @relation(fields: [participanteId], references: [id])
+  participante Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
 
   @@map("reacoes")
 }

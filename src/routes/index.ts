@@ -1,1 +1,1 @@
-export * from './example.route'
+export * from './participante.route'
