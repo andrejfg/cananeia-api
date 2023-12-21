@@ -12,7 +12,7 @@ datasource db {
 
 model Usuario{
   id String @id @default(uuid())
-  usuario String
+  usuario String @unique
   senha String
 
   polo Polo?
@@ -44,7 +44,7 @@ model Participante{
 model Polo{
   id String @id @default(uuid())
   nome String @unique
-  numero String
+  numero String @unique
   participante Participante[]
 
   perfilImagem Imagem? 
@@ -65,6 +65,8 @@ model Imagem{
   participante Participante? @relation(fields: [participanteId], references: [id], onDelete: Cascade)
   publicacaoId String? @unique
   publicacao Publicacao? @relation(fields: [publicacaoId], references: [id], onDelete: Cascade)
+
+  @@map("imagens")
 }
 
 model Publicacao{

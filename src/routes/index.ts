@@ -1,2 +1,2 @@
-export * from './participante.route'
-export * from './polo.route'
+export * from './participante.routes'
+export * from './polo.routes'

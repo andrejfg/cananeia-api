@@ -2,12 +2,24 @@ import { Elysia } from 'elysia'
 import { authentication } from '@/authentication'
 import { add, findAll, findOne, remove, update } from '@/handlers/polo.handler'
 import { AddPoloSchema, UpdatePoloSchema } from '@/dtos/polos'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { ConflictPolo } from './errors/conflict'
 
 export const poloRoutes = new Elysia().group('/polo', (app) =>
   app
     .use(authentication)
     .onBeforeHandle(async ({ getCurrentUser }) => {
       await getCurrentUser()
+    })
+    .error({
+      CONFLICT: ConflictPolo,
+    })
+    .onError(({ code, error, set }) => {
+      switch (code) {
+        case 'CONFLICT':
+          set.status = 'Conflict'
+          return { code, message: error.message }
+      }
     })
     .get('/', async () => {
       return findAll()
@@ -32,10 +44,15 @@ export const poloRoutes = new Elysia().group('/polo', (app) =>
     .post(
       '/',
       async ({ body, set }) => {
-        const polo = await add(body)
-        if (polo) {
-          set.status = 'Created'
-          return polo
+        try {
+          const polo = await add(body)
+          if (polo) {
+            set.status = 'Created'
+            return polo
+          }
+        } catch (e) {
+          if (e instanceof PrismaClientKnownRequestError)
+            throw new ConflictPolo()
         }
       },
       {

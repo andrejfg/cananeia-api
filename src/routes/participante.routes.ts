@@ -11,12 +11,24 @@ import {
   UpdateParticipanteSchema,
 } from '../dtos/participantes'
 import { authentication } from '@/authentication'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { ConflictParticipante } from './errors/conflict'
 
 export const participanteRoutes = new Elysia().group('/participante', (app) =>
   app
     .use(authentication)
     .onBeforeHandle(async ({ getCurrentUser }) => {
       await getCurrentUser()
+    })
+    .error({
+      CONFLICT: ConflictParticipante,
+    })
+    .onError(({ code, error, set }) => {
+      switch (code) {
+        case 'CONFLICT':
+          set.status = 'Conflict'
+          return { code, message: error.message }
+      }
     })
     .get('/', async () => {
       return findAll()
@@ -41,10 +53,15 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
     .post(
       '/',
       async ({ body, set }) => {
-        const participante = await add(body)
-        if (participante) {
-          set.status = 'Created'
-          return participante
+        try {
+          const participante = await add(body)
+          if (participante) {
+            set.status = 'Created'
+            return participante
+          }
+        } catch (e) {
+          if (e instanceof PrismaClientKnownRequestError)
+            throw new ConflictParticipante()
         }
       },
       {
