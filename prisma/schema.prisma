@@ -16,3 +16,111 @@ model Example{
 
   @@map("examples")
 }
+
+model Usuario{
+  id String @id @default(uuid())
+  usuario String
+  senha String
+  perfilUrl String?
+
+  polo Polo?
+  participante Participante?
+
+  @@map("usuarios")
+}
+
+// Usuário comum
+model Participante{
+  id String @id @default(uuid())
+  nome String
+  publicacoes Publicacao[]
+  cometarios Comentario[]
+  reacao Reacao[]
+
+  polo ParticipantePolo?
+  usuarioId String @unique
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@map("participantes")
+}
+
+// Usuário administrador
+model Polo{
+  id String @id @default(uuid())
+  nome String
+  numero String
+  participantes ParticipantePolo[]
+
+  usuarioId String @unique
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@map("polos")
+}
+
+model ParticipantePolo{
+  id String @id @default(uuid())
+  comissao Boolean @default(false)
+
+  poloId String 
+  polo   Polo @relation(fields: [poloId], references: [id])
+  participanteId String @unique
+  participante Participante @relation(fields: [participanteId], references: [id])
+
+  @@map("participantes_polo")
+}
+
+model Publicacao{
+  id String @id @default(uuid())
+  imagemUrl String
+  descricao String
+  aceito Boolean @default(false)
+
+  cometarios Comentario[]
+  reacao Reacao[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  acceptedAt DateTime?
+
+  participanteId String
+  participante Participante @relation(fields: [participanteId], references: [id])
+
+  @@map("publicacoes")
+}
+
+model Comentario{
+  id String @id @default(uuid())
+  message String
+  accepted Boolean @default(false)
+  reacao Reacao[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  acceptedAt DateTime?
+
+  participanteId String
+  participante Participante @relation(fields: [participanteId], references: [id])
+  publicacaoId String
+  publicacao Publicacao @relation(fields: [publicacaoId], references: [id])
+
+  @@map("comentarios")
+}
+
+enum ReationENUM {
+  LOVE
+}
+
+model Reacao{
+  id String @id @default(uuid())
+  tipo ReationENUM @default(LOVE)
+
+  publicacaoId String?
+  publicacao Publicacao? @relation(fields: [publicacaoId], references: [id])
+  comentarioId String?
+  comentario Comentario? @relation(fields: [comentarioId], references: [id])
+
+  participanteId String
+  participante Participante @relation(fields: [participanteId], references: [id])
+
+  @@map("reacoes")
+}
