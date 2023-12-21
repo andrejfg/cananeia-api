@@ -1,18 +1,9 @@
 import { Elysia } from 'elysia'
-import {
-  findAll,
-  findOne,
-  add,
-  remove,
-  update,
-} from '../handlers/participante.handler'
-import {
-  AddParticipanteSchema,
-  UpdateParticipanteSchema,
-} from '../dtos/participantes'
 import { authentication } from '@/authentication'
+import { add, findAll, findOne, remove, update } from '@/handlers/polo.handler'
+import { AddPoloSchema, UpdatePoloSchema } from '@/dtos/polos'
 
-export const participanteRoutes = new Elysia().group('/participante', (app) =>
+export const poloRoutes = new Elysia().group('/polo', (app) =>
   app
     .use(authentication)
     .onBeforeHandle(async ({ getCurrentUser }) => {
@@ -22,18 +13,18 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
       return findAll()
     })
     .get('/:id', async ({ params: { id }, set }) => {
-      const participante = await findOne(id)
-      if (participante) {
-        return participante
+      const polo = await findOne(id)
+      if (polo) {
+        return polo
       } else {
         set.status = 'Not Found' // Status 404
       }
     })
     .get('/whoami', async ({ set, getCurrentUser }) => {
       const currentUser = await getCurrentUser()
-      const participante = await findOne(currentUser.sub)
-      if (participante) {
-        return participante
+      const polo = await findOne(currentUser.sub)
+      if (polo) {
+        return polo
       } else {
         set.status = 'Not Found' // Status 404
       }
@@ -41,19 +32,19 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
     .post(
       '/',
       async ({ body, set }) => {
-        const participante = await add(body)
-        if (participante) {
+        const polo = await add(body)
+        if (polo) {
           set.status = 'Created'
-          return participante
+          return polo
         }
       },
       {
-        body: AddParticipanteSchema,
+        body: AddPoloSchema,
       },
     )
     .delete('/:id', async ({ params: { id }, set }) => {
-      const deletedParticipante = await remove(id)
-      if (deletedParticipante) {
+      const deletedPolo = await remove(id)
+      if (deletedPolo) {
         set.status = 'No Content' // Status 200
       } else {
         set.status = 'Not Found' // Status 404
@@ -62,15 +53,15 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
     .put(
       '/:id',
       async ({ params: { id }, body, set }) => {
-        const updatedParticipante = await update(id, body)
-        if (updatedParticipante) {
+        const updatedPolo = await update(id, body)
+        if (updatedPolo) {
           set.status = 'No Content' // Status 200
         } else {
           set.status = 'Not Found' // Status 404
         }
       },
       {
-        body: UpdateParticipanteSchema,
+        body: UpdatePoloSchema,
       },
     ),
 )

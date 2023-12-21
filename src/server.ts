@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 import { swagger } from '@elysiajs/swagger'
 import cors from '@elysiajs/cors'
-import { participanteRoutes } from './routes'
+import { participanteRoutes, poloRoutes } from './routes'
 import { authentication } from './authentication'
 
 const app = new Elysia()
@@ -40,6 +40,7 @@ const app = new Elysia()
   )
   .use(authentication)
   .use(participanteRoutes)
+  .use(poloRoutes)
   .get('/', () => {
     return { code: 200, message: 'Server working' }
   })

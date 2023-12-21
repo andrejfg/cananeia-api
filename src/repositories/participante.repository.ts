@@ -17,31 +17,43 @@ class ParticipanteRepository {
 
   // TODO: IMAGE
   async add(data: AddParticipanteDTO) {
-    const { poloId, nome, ...usuario } = data
     const poloData = await prisma.polo.findUnique({
-      where: { id: poloId },
+      where: { id: data.poloId },
     })
     if (!poloData) {
       return null
     }
 
-    const { id: usuarioId } = await prisma.usuario.create({ data: usuario })
     const newParticipante = await prisma.participante.create({
-      data: { nome, usuarioId, poloId },
-      include: { polo: true, perfilImagem: true },
+      data: {
+        nome: data.nome,
+        usuario: {
+          create: { usuario: data.usuario, senha: data.senha },
+        },
+        polo: {
+          connect: {
+            id: data.poloId,
+          },
+        },
+      },
+      include: { perfilImagem: true },
     })
+
     return newParticipante
   }
 
   async removeById(id: string) {
-    return await prisma.usuario.delete({
-      where: { id },
-    })
+    const participante = await this.findById(id)
+    if (participante) {
+      await prisma.usuario.delete({
+        where: { id: participante.usuarioId },
+      })
+      return participante
+    }
   }
 
   // TODO: IMAGE
   async updateById(id: string, data: UpdateParticipanteDTO) {
-    const { poloId, nome, ...newUser } = data
     const participante = await this.findById(id)
 
     // not found
@@ -50,9 +62,9 @@ class ParticipanteRepository {
     }
 
     // has polo data to update in participante
-    if (poloId) {
+    if (data.poloId) {
       const newPolo = await prisma.polo.findUnique({
-        where: { id: poloId },
+        where: { id: data.poloId },
       })
       // new polo not found
       if (!newPolo) {
@@ -65,14 +77,15 @@ class ParticipanteRepository {
         })
       }
     }
-    await prisma.usuario.update({
-      where: { id: participante.usuarioId },
-      data: newUser,
-    })
 
     const newParticipante = await prisma.participante.update({
       where: { id },
-      data: { nome },
+      data: {
+        nome: data.nome,
+        usuario: {
+          update: { usuario: data.usuario, senha: data.senha },
+        },
+      },
     })
 
     return newParticipante
