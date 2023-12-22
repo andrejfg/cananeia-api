@@ -23,12 +23,13 @@ class ParticipanteRepository {
     if (!poloData) {
       return null
     }
-
+    // encrypt password
+    const senha = await Bun.password.hash(data.senha)
     const newParticipante = await prisma.participante.create({
       data: {
         nome: data.nome,
         usuario: {
-          create: { usuario: data.usuario, senha: data.senha },
+          create: { usuario: data.usuario, senha },
         },
         polo: {
           connect: {

@@ -3,7 +3,7 @@ import { authentication } from '@/authentication'
 import { add, findAll, findOne, remove, update } from '@/handlers/polo.handler'
 import { AddPoloSchema, UpdatePoloSchema } from '@/dtos/polos'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
-import { ConflictPolo } from './errors/conflict'
+import { ConflictPolo } from './errors'
 
 export const poloRoutes = new Elysia().group('/polo', (app) =>
   app
@@ -43,7 +43,8 @@ export const poloRoutes = new Elysia().group('/polo', (app) =>
     })
     .post(
       '/',
-      async ({ body, set }) => {
+      async ({ body, set, isComissao }) => {
+        await isComissao()
         try {
           const polo = await add(body)
           if (polo) {
@@ -59,7 +60,8 @@ export const poloRoutes = new Elysia().group('/polo', (app) =>
         body: AddPoloSchema,
       },
     )
-    .delete('/:id', async ({ params: { id }, set }) => {
+    .delete('/:id', async ({ params: { id }, set, isComissao }) => {
+      await isComissao()
       const deletedPolo = await remove(id)
       if (deletedPolo) {
         set.status = 'No Content' // Status 200

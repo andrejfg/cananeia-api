@@ -12,7 +12,7 @@ import {
 } from '../dtos/participantes'
 import { authentication } from '@/authentication'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
-import { ConflictParticipante } from './errors/conflict'
+import { ConflictParticipante } from './errors'
 
 export const participanteRoutes = new Elysia().group('/participante', (app) =>
   app
