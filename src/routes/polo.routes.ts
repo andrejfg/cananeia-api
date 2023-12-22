@@ -44,7 +44,7 @@ export const poloRoutes = new Elysia().group('/polo', (app) =>
     .post(
       '/',
       async ({ body, set, isComissao }) => {
-        await isComissao()
+        // await isComissao()
         try {
           const polo = await add(body)
           if (polo) {
