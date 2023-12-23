@@ -1,5 +1,5 @@
-import { AddPoloDTO, UpdatePoloDTO } from '@/dtos/polos'
-import prisma from '../database/prisma'
+import prisma from '@/database/prisma'
+import { AddPoloDTO, UpdatePoloDTO } from '../dtos/polos'
 
 class PoloRepository {
   async findAll() {

@@ -10,9 +10,9 @@ import {
   AddParticipanteSchema,
   UpdateParticipanteSchema,
 } from '../dtos/participantes'
-import { authentication } from '@/authentication'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { ConflictParticipante } from './errors'
+import { authentication } from '../authentication'
 
 export const participanteRoutes = new Elysia().group('/participante', (app) =>
   app
@@ -53,8 +53,8 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
     .post(
       '/',
       async ({ body, set }) => {
+        const participante = await add(body)
         try {
-          const participante = await add(body)
           if (participante) {
             set.status = 'Created'
             return participante

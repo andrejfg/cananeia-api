@@ -1,9 +1,15 @@
 import { Elysia } from 'elysia'
-import { authentication } from '@/authentication'
-import { add, findAll, findOne, remove, update } from '@/handlers/polo.handler'
-import { AddPoloSchema, UpdatePoloSchema } from '@/dtos/polos'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { ConflictPolo } from './errors'
+import { authentication } from '../authentication'
+import { AddPoloSchema, UpdatePoloSchema } from '@/http/dtos/polos'
+import {
+  findAll,
+  findOne,
+  add,
+  remove,
+  update,
+} from '@/http/handlers/polo.handler'
 
 export const poloRoutes = new Elysia().group('/polo', (app) =>
   app
@@ -44,7 +50,7 @@ export const poloRoutes = new Elysia().group('/polo', (app) =>
     .post(
       '/',
       async ({ body, set, isComissao }) => {
-        // await isComissao()
+        await isComissao()
         try {
           const polo = await add(body)
           if (polo) {

@@ -1,8 +1,9 @@
 import { Elysia } from 'elysia'
 import { swagger } from '@elysiajs/swagger'
 import cors from '@elysiajs/cors'
-import { participanteRoutes, poloRoutes } from './routes'
 import { authentication } from './authentication'
+import { participanteRoutes, poloRoutes } from './routes'
+import { loginRoutes } from './routes/login.routes'
 
 const app = new Elysia()
   .use(
@@ -39,6 +40,7 @@ const app = new Elysia()
     }),
   )
   .use(authentication)
+  .use(loginRoutes)
   .use(participanteRoutes)
   .use(poloRoutes)
   .get('/', () => {

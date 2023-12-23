@@ -2,7 +2,7 @@ import Elysia, { Static, t } from 'elysia'
 import jwt from '@elysiajs/jwt'
 import cookie from '@elysiajs/cookie'
 import { env } from '@/env'
-import prisma from './database/prisma'
+import prisma from '@/database/prisma'
 import { UnauthorizedError, NotComissao } from './routes/errors'
 
 const jwtPayloadSchema = t.Object({
@@ -61,12 +61,22 @@ export const authentication = new Elysia()
   .derive(({ getCurrentUser }) => {
     return {
       isComissao: async () => {
-        const { sub } = await getCurrentUser()
-        const participante = await prisma.participante.findUnique({
-          where: { usuarioId: sub },
+        const { sub: id } = await getCurrentUser()
+        const user = await prisma.usuario.findUnique({
+          where: { id },
+          include: { participante: true, polo: true },
         })
-        if (!participante?.comissao) {
+        // não existe usuario
+        if (!user) {
+          throw new UnauthorizedError()
+        }
+        // usuario é participante e não faz parte da comissão
+        if (user.participante && !user.participante.comissao) {
           throw new NotComissao()
+        }
+        // usuario não é nem polo e nem participante
+        if (!user.polo) {
+          throw new UnauthorizedError()
         }
       },
     }

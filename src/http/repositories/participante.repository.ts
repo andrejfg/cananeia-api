@@ -1,5 +1,8 @@
-import { AddParticipanteDTO, UpdateParticipanteDTO } from '@/dtos/participantes'
-import prisma from '../database/prisma'
+import prisma from '@/database/prisma'
+import {
+  AddParticipanteDTO,
+  UpdateParticipanteDTO,
+} from '../dtos/participantes'
 
 class ParticipanteRepository {
   async findAll() {
