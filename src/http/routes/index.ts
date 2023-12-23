@@ -1,2 +1,5 @@
 export * from './participante.routes'
 export * from './polo.routes'
+export * from './login.routes'
+export * from './user.routes'
+export * from './admin.routes'

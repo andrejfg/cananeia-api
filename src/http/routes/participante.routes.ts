@@ -17,9 +17,6 @@ import { authentication } from '../authentication'
 export const participanteRoutes = new Elysia().group('/participante', (app) =>
   app
     .use(authentication)
-    .onBeforeHandle(async ({ getCurrentUser }) => {
-      await getCurrentUser()
-    })
     .error({
       CONFLICT: ConflictParticipante,
     })
@@ -30,20 +27,13 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
           return { code, message: error.message }
       }
     })
-    .get('/', async () => {
+    .get('/', async ({ isComissao }) => {
+      await isComissao()
       return findAll()
     })
-    .get('/:id', async ({ params: { id }, set }) => {
+    .get('/:id', async ({ params: { id }, set, isComissao }) => {
+      await isComissao()
       const participante = await findOne(id)
-      if (participante) {
-        return participante
-      } else {
-        set.status = 'Not Found' // Status 404
-      }
-    })
-    .get('/whoami', async ({ set, getCurrentUser }) => {
-      const currentUser = await getCurrentUser()
-      const participante = await findOne(currentUser.sub)
       if (participante) {
         return participante
       } else {
@@ -68,7 +58,8 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
         body: AddParticipanteSchema,
       },
     )
-    .delete('/:id', async ({ params: { id }, set }) => {
+    .delete('/:id', async ({ params: { id }, set, isComissao }) => {
+      await isComissao()
       const deletedParticipante = await remove(id)
       if (deletedParticipante) {
         set.status = 'No Content' // Status 200
@@ -78,7 +69,8 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
     })
     .put(
       '/:id',
-      async ({ params: { id }, body, set }) => {
+      async ({ params: { id }, body, set, isComissao }) => {
+        await isComissao()
         const updatedParticipante = await update(id, body)
         if (updatedParticipante) {
           set.status = 'No Content' // Status 200

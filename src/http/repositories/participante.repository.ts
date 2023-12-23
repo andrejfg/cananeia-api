@@ -81,13 +81,19 @@ class ParticipanteRepository {
         })
       }
     }
+    // criptografa a senha
+    let senha: string | undefined
+    if (data.senha) {
+      senha = await Bun.password.hash(data.senha)
+    }
 
     const newParticipante = await prisma.participante.update({
       where: { id },
       data: {
         nome: data.nome,
+        comissao: data.comissao,
         usuario: {
-          update: { usuario: data.usuario, senha: data.senha },
+          update: { usuario: data.usuario, senha },
         },
       },
     })

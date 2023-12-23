@@ -1,11 +1,6 @@
-import { AddParticipanteDTO } from '../dtos/participantes'
-import { AddPoloDTO } from '../dtos/polos'
-import participanteRepository from '../repositories/participante.repository'
-import poloRepository from '../repositories/polo.repository'
+import { SigninDTO } from '../dtos/login/signin.dto'
+import loginRepository from '../repositories/login.repository'
 
-export async function addParticipante(data: AddParticipanteDTO) {
-  return await participanteRepository.add(data)
-}
-export async function addPolo(data: AddPoloDTO) {
-  return await poloRepository.add(data)
+export async function signin(data: SigninDTO) {
+  return await loginRepository.signin(data)
 }

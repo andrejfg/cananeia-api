@@ -14,9 +14,6 @@ import {
 export const poloRoutes = new Elysia().group('/polo', (app) =>
   app
     .use(authentication)
-    .onBeforeHandle(async ({ getCurrentUser }) => {
-      await getCurrentUser()
-    })
     .error({
       CONFLICT: ConflictPolo,
     })
@@ -27,20 +24,13 @@ export const poloRoutes = new Elysia().group('/polo', (app) =>
           return { code, message: error.message }
       }
     })
-    .get('/', async () => {
+    .get('/', async ({ isComissao }) => {
+      await isComissao()
       return findAll()
     })
-    .get('/:id', async ({ params: { id }, set }) => {
+    .get('/:id', async ({ params: { id }, set, isComissao }) => {
+      await isComissao()
       const polo = await findOne(id)
-      if (polo) {
-        return polo
-      } else {
-        set.status = 'Not Found' // Status 404
-      }
-    })
-    .get('/whoami', async ({ set, getCurrentUser }) => {
-      const currentUser = await getCurrentUser()
-      const polo = await findOne(currentUser.sub)
       if (polo) {
         return polo
       } else {
@@ -49,8 +39,7 @@ export const poloRoutes = new Elysia().group('/polo', (app) =>
     })
     .post(
       '/',
-      async ({ body, set, isComissao }) => {
-        await isComissao()
+      async ({ body, set }) => {
         try {
           const polo = await add(body)
           if (polo) {
@@ -77,7 +66,8 @@ export const poloRoutes = new Elysia().group('/polo', (app) =>
     })
     .put(
       '/:id',
-      async ({ params: { id }, body, set }) => {
+      async ({ params: { id }, body, set, isComissao }) => {
+        await isComissao()
         const updatedPolo = await update(id, body)
         if (updatedPolo) {
           set.status = 'No Content' // Status 200

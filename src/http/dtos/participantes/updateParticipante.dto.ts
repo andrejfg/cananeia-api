@@ -6,6 +6,7 @@ export const UpdateParticipanteSchema = t.Object({
   senha: t.Optional(t.String()),
   perfilUrl: t.Optional(t.String()),
   poloId: t.Optional(t.String()),
+  comissao: t.Optional(t.Boolean()),
 })
 
 export type UpdateParticipanteDTO = Static<typeof UpdateParticipanteSchema>

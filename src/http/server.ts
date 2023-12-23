@@ -2,27 +2,16 @@ import { Elysia } from 'elysia'
 import { swagger } from '@elysiajs/swagger'
 import cors from '@elysiajs/cors'
 import { authentication } from './authentication'
-import { participanteRoutes, poloRoutes } from './routes'
-import { loginRoutes } from './routes/login.routes'
+import {
+  adminRoutes,
+  loginRoutes,
+  participanteRoutes,
+  poloRoutes,
+  userRoutes,
+} from './routes'
 
 const app = new Elysia()
-  .use(
-    swagger({
-      documentation: {
-        components: {
-          securitySchemes: {
-            api_key: {
-              type: 'apiKey',
-              name: 'Cookie',
-              in: 'header',
-              description: 'JWT token cookie to validade user',
-            },
-          },
-        },
-        security: [{ api_key: [] }],
-      },
-    }),
-  )
+  .use(swagger())
   .use(
     cors({
       credentials: true,
@@ -41,8 +30,10 @@ const app = new Elysia()
   )
   .use(authentication)
   .use(loginRoutes)
+  .use(userRoutes)
   .use(participanteRoutes)
   .use(poloRoutes)
+  .use(adminRoutes)
   .get('/', () => {
     return { code: 200, message: 'Server working' }
   })

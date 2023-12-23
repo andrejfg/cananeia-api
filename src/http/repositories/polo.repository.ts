@@ -17,11 +17,12 @@ class PoloRepository {
 
   // TODO: Handle Image
   async add(data: AddPoloDTO) {
+    const senha = await Bun.password.hash(data.senha)
     const newPolo = await prisma.polo.create({
       data: {
         nome: data.nome,
         numero: data.numero,
-        usuario: { create: { usuario: data.usuario, senha: data.senha } },
+        usuario: { create: { usuario: data.usuario, senha } },
       },
       include: { perfilImagem: true },
     })
@@ -45,13 +46,19 @@ class PoloRepository {
       return null
     }
 
+    // criptografa a senha
+    let senha: string | undefined
+    if (data.senha) {
+      senha = await Bun.password.hash(data.senha)
+    }
+
     const updatedPolo = await prisma.polo.update({
       where: { id },
       data: {
         nome: data.nome,
         numero: data.numero,
         usuario: {
-          update: { usuario: data.usuario, senha: data.senha },
+          update: { usuario: data.usuario, senha },
         },
       },
       include: { perfilImagem: true },
