@@ -6,7 +6,6 @@ export const adminRoutes = new Elysia().use(authentication).put(
   '/comissao/:id',
   async ({ set, params, body, isComissao }) => {
     await isComissao()
-    // console.log('foi')
     const participante = await update(params.id, {
       comissao: body.comissao,
     })
