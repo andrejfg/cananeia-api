@@ -37,12 +37,12 @@ class UserRepository {
 
     // Se for um participante de comissão que está trocando a imagem de perfil do polo
     const usuarioId =
-      tipo && tipo === '0' && user.participante?.comissao
+      tipo && tipo === '1' && user.participante?.comissao
         ? user.polo.usuarioId
         : id
     const poloUser = await this.findById(user.polo.usuarioId)
     const oldImage =
-      poloUser && tipo && tipo === '0' && user.participante?.comissao
+      poloUser && tipo && tipo === '1' && user.participante?.comissao
         ? poloUser.perfilImagem?.nome
         : user.perfilImagem?.nome
 

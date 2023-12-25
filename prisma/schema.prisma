@@ -27,9 +27,9 @@ model Participante{
   id String @id @default(uuid())
   nome String
   comissao Boolean @default(false)
-  publicacoes Publicacao[]
   cometarios Comentario[]
   reacao Reacao[]
+  publicacao Publicacao[]
 
   poloId String?
   polo Polo? @relation(fields: [poloId], references: [id])
@@ -46,6 +46,7 @@ model Polo{
   nome String @unique
   numero String @unique
   participante Participante[]
+  publicacao Publicacao[]
 
   
   usuarioId String @unique
@@ -69,19 +70,21 @@ model Imagem{
 
 model Publicacao{
   id String @id @default(uuid())
-  perfilImagem Imagem? 
-  descricao String
+  imagem Imagem? 
+  descricao String?
   aceito Boolean @default(false)
 
   cometarios Comentario[]
-  reacao Reacao[]
+  reacoes Reacao[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
   acceptedAt DateTime?
 
-  participanteId String
-  participante Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
+  participanteId String?
+  participante Participante? @relation(fields: [participanteId], references: [id], onDelete: Cascade)
+  poloId String?
+  polo Polo? @relation(fields: [poloId], references: [id], onDelete: Cascade)
 
   @@map("publicacoes")
 }

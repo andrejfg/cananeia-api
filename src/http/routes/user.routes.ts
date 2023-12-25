@@ -19,14 +19,14 @@ export const userRoutes = new Elysia()
   })
   .post(
     '/user/imagem',
-    async ({ set, body, getCurrentUser, isComissao }) => {
+    async ({ set, body: { image, tipo }, getCurrentUser, isComissao }) => {
       // const { tipo } = paramsSchema.parse(params)
       const payloadJWT = await getCurrentUser()
-      if (body && body.tipo === '1') await isComissao()
+      if (tipo === '1') await isComissao()
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const imagem = await add(body)
+      const imagem = await add({ image })
       if (imagem) {
-        const novoUsuario = await changeImage(payloadJWT.sub, imagem, body.tipo)
+        const novoUsuario = await changeImage(payloadJWT.sub, imagem, tipo)
         if (novoUsuario) {
           return novoUsuario
         } else {

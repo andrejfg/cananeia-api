@@ -29,7 +29,7 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
     })
     .get('/', async ({ isComissao }) => {
       await isComissao()
-      return findAll()
+      return await findAll()
     })
     .get('/:id', async ({ params: { id }, set, isComissao }) => {
       await isComissao()
