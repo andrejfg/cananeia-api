@@ -9,8 +9,15 @@ import {
   poloRoutes,
   userRoutes,
 } from './routes'
+import staticPlugin from '@elysiajs/static'
+import { existsSync, mkdirSync } from 'fs'
 
-const app = new Elysia()
+// make directory for images static routes
+if (!existsSync('public')) {
+  mkdirSync('public')
+}
+
+export const app = new Elysia()
   .use(swagger())
   .use(
     cors({
@@ -28,6 +35,7 @@ const app = new Elysia()
       },
     }),
   )
+  .use(staticPlugin({ prefix: 'upload' }))
   .use(authentication)
   .use(loginRoutes)
   .use(userRoutes)

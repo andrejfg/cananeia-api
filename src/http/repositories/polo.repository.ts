@@ -2,17 +2,32 @@ import prisma from '@/database/prisma'
 import { AddPoloDTO, UpdatePoloDTO } from '../dtos/polos'
 
 class PoloRepository {
+  // Função auxiliar para tratar como vai ser o retorno de participante sem repetir código
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private poloReturn(polo: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { senha, ...usuario } = polo.usuario
+    return {
+      ...polo,
+      usuario: {
+        usuario,
+      },
+    }
+  }
+
   async findAll() {
-    return await prisma.polo.findMany({
-      include: { perfilImagem: true },
+    const polos = await prisma.polo.findMany({
+      include: { usuario: { include: { perfilImagem: true } } },
     })
+    return polos.map(this.poloReturn)
   }
 
   async findById(id: string) {
-    return await prisma.polo.findUnique({
+    const polo = await prisma.polo.findUnique({
       where: { id },
-      include: { perfilImagem: true },
+      include: { usuario: { include: { perfilImagem: true } } },
     })
+    return this.poloReturn(polo)
   }
 
   // TODO: Handle Image
@@ -24,9 +39,9 @@ class PoloRepository {
         numero: data.numero,
         usuario: { create: { usuario: data.usuario, senha } },
       },
-      include: { perfilImagem: true },
+      include: { usuario: { include: { perfilImagem: true } } },
     })
-    return newPolo
+    return this.poloReturn(newPolo)
   }
 
   async removeById(id: string) {
@@ -61,10 +76,10 @@ class PoloRepository {
           update: { usuario: data.usuario, senha },
         },
       },
-      include: { perfilImagem: true },
+      include: { usuario: { include: { perfilImagem: true } } },
     })
 
-    return updatedPolo
+    return this.poloReturn(updatedPolo)
   }
 }
 

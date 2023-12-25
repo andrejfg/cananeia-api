@@ -8,7 +8,6 @@ import { findById } from './handlers/user.handle'
 const jwtPayloadSchema = t.Object({
   sub: t.String(),
   nome: t.String(),
-  perfilUrl: t.Optional(t.String()),
 })
 
 export const authentication = new Elysia()

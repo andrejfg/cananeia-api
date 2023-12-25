@@ -3,26 +3,40 @@ import {
   AddParticipanteDTO,
   UpdateParticipanteDTO,
 } from '../dtos/participantes'
+import poloRepository from './polo.repository'
 
 class ParticipanteRepository {
+  // Função auxiliar para tratar como vai ser o retorno de participante sem repetir código
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private participanteReturn(participante: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { senha, ...usuario } = participante.usuario
+    return {
+      ...participante,
+      usuario: {
+        usuario,
+      },
+    }
+  }
+
   async findAll() {
-    return await prisma.participante.findMany({
-      include: { polo: true, perfilImagem: true },
+    const participantes = await prisma.participante.findMany({
+      include: { polo: true, usuario: { include: { perfilImagem: true } } },
     })
+    return participantes.map(this.participanteReturn)
   }
 
   async findById(id: string) {
-    return await prisma.participante.findFirst({
+    const participante = await prisma.participante.findFirst({
       where: { id },
-      include: { polo: true, perfilImagem: true },
+      include: { polo: true, usuario: { include: { perfilImagem: true } } },
     })
+    return this.participanteReturn(participante)
   }
 
   // TODO: IMAGE
   async add(data: AddParticipanteDTO) {
-    const poloData = await prisma.polo.findUnique({
-      where: { id: data.poloId },
-    })
+    const poloData = await poloRepository.findById(data.poloId)
     if (!poloData) {
       return null
     }
@@ -35,15 +49,13 @@ class ParticipanteRepository {
           create: { usuario: data.usuario, senha },
         },
         polo: {
-          connect: {
-            id: data.poloId,
-          },
+          connect: poloData,
         },
       },
-      include: { perfilImagem: true },
+      include: { polo: true, usuario: { include: { perfilImagem: true } } },
     })
 
-    return newParticipante
+    return this.participanteReturn(newParticipante)
   }
 
   async removeById(id: string) {
@@ -67,9 +79,7 @@ class ParticipanteRepository {
 
     // has polo data to update in participante
     if (data.poloId) {
-      const newPolo = await prisma.polo.findUnique({
-        where: { id: data.poloId },
-      })
+      const newPolo = await poloRepository.findById(data.poloId)
       // new polo not found
       if (!newPolo) {
         return null
@@ -77,7 +87,7 @@ class ParticipanteRepository {
         // update polo to user
         await prisma.participante.update({
           where: { id },
-          data: { poloId: newPolo.id },
+          data: { polo: { connect: newPolo } },
         })
       }
     }
@@ -87,7 +97,7 @@ class ParticipanteRepository {
       senha = await Bun.password.hash(data.senha)
     }
 
-    const newParticipante = await prisma.participante.update({
+    const updatedParticipante = await prisma.participante.update({
       where: { id },
       data: {
         nome: data.nome,
@@ -96,9 +106,10 @@ class ParticipanteRepository {
           update: { usuario: data.usuario, senha },
         },
       },
+      include: { polo: true, usuario: { include: { perfilImagem: true } } },
     })
 
-    return newParticipante
+    return this.participanteReturn(updatedParticipante)
   }
 }
 

@@ -1,4 +1,8 @@
-import usuarioRepository from '../repositories/user.repository'
+import userRepository from '../repositories/user.repository'
 export async function findById(id: string) {
-  return await usuarioRepository.findById(id)
+  return await userRepository.findById(id)
+}
+
+export async function changeImage(id: string, imageId: string, tipo?: string) {
+  return await userRepository.changeImage(id, imageId, tipo)
 }
