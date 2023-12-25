@@ -53,12 +53,35 @@ class UserRepository {
     })
 
     if (newUser) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { senha, ...user } = newUser
       if (oldImage) imageRepository.remove(oldImage)
       return user
     } else {
       imageRepository.remove(imageId)
     }
+  }
+
+  async removeImage(id: string, tipo: string) {
+    const user = await this.findById(id)
+
+    if (!user || (tipo && tipo === '1' && !user.participante?.comissao)) {
+      return
+    }
+    if (tipo && tipo === '1' && user.participante?.comissao) {
+      const usuarioId = user.polo.usuarioId
+      const userImage = await this.findById(usuarioId)
+      if (userImage && userImage.perfilImagem?.nome) {
+        imageRepository.remove(userImage.perfilImagem?.nome)
+        return true
+      }
+    } else {
+      if (user.perfilImagem?.nome) {
+        imageRepository.remove(user.perfilImagem?.nome)
+        return true
+      }
+    }
+    console.log('teste 6')
   }
 }
 

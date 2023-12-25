@@ -1,8 +1,9 @@
 import Elysia from 'elysia'
 import { authentication } from '../authentication'
-import { changeImage, findById } from '../handlers/user.handle'
+import { changeImage, findById, removeImage } from '../handlers/user.handle'
 import { add } from '../handlers/upload.handle'
 import { AddUserImageSchema } from '../dtos/user/addUserImage.dto'
+import { RemoveUserImageSchema } from '../dtos/user/removeUserImage.dto'
 
 export const userRoutes = new Elysia()
   .use(authentication)
@@ -18,9 +19,10 @@ export const userRoutes = new Elysia()
   })
   .post(
     '/user/imagem',
-    async ({ set, body, getCurrentUser }) => {
+    async ({ set, body, getCurrentUser, isComissao }) => {
       // const { tipo } = paramsSchema.parse(params)
       const payloadJWT = await getCurrentUser()
+      if (body && body.tipo === '1') await isComissao()
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const imagem = await add(body)
       if (imagem) {
@@ -28,15 +30,31 @@ export const userRoutes = new Elysia()
         if (novoUsuario) {
           return novoUsuario
         } else {
-          console.log(1)
           set.status = 'Bad Request'
         }
       } else {
-        console.log(2)
         set.status = 'Bad Request'
       }
     },
     {
       body: AddUserImageSchema,
+    },
+  )
+  .delete(
+    '/user/imagem',
+    async ({ set, body, getCurrentUser, isComissao }) => {
+      // const { tipo } = paramsSchema.parse(params)
+      const payloadJWT = await getCurrentUser()
+      if (body && body.tipo === '1') await isComissao()
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const isRemoved = await removeImage(payloadJWT.sub, body.tipo || '0')
+      if (isRemoved) {
+        set.status = 'No Content'
+      } else {
+        set.status = 'Bad Request'
+      }
+    },
+    {
+      body: RemoveUserImageSchema,
     },
   )
