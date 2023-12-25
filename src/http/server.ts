@@ -7,6 +7,7 @@ import {
   loginRoutes,
   participanteRoutes,
   poloRoutes,
+  publicacaoRoutes,
   userRoutes,
 } from './routes'
 import staticPlugin from '@elysiajs/static'
@@ -42,6 +43,7 @@ export const app = new Elysia()
   .use(participanteRoutes)
   .use(poloRoutes)
   .use(adminRoutes)
+  .use(publicacaoRoutes)
   .get('/', () => {
     return { code: 200, message: 'Server working' }
   })
