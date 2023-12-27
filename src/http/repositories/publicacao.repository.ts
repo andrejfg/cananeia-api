@@ -24,7 +24,10 @@ class PublicacaoRepository {
     if (data.tipo === '0' && !user.participante) return
     // Se a publicação for de polo, mas foi feito por um participante que não é comissao:ERRO
     // Se a publicação for de polo, mas não tem polo: ERRO
-    if ((data.tipo === '1' && !user.participante?.comissao) || !user.polo)
+    if (
+      !user.polo ||
+      (data.tipo === '1' && user.participante && !user.participante?.comissao)
+    )
       return
 
     if (data.tipo === '0') {
