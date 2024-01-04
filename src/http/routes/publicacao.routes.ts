@@ -1,8 +1,10 @@
-import Elysia from 'elysia'
+import Elysia, { t } from 'elysia'
 import { authentication } from '../authentication'
 import {
   add,
+  carregarFeed,
   findAll,
+  findMine,
   findOne,
   remove,
   update,
@@ -18,6 +20,40 @@ export const publicacaoRoutes = new Elysia().group('/publicacao', (app) =>
     .get('/', async () => {
       return await findAll()
     })
+    .get(
+      '/my',
+      async ({ query, getCurrentUser }) => {
+        const user = await getCurrentUser()
+        return await findMine(user.sub, query.tipo)
+      },
+      {
+        query: t.Optional(
+          t.Object({
+            tipo: t.Optional(t.String()),
+          }),
+        ),
+      },
+    )
+    .get(
+      '/feed',
+      async ({ query, set }) => {
+        const { newer = new Date('2023'), older = new Date('2025') } = query
+        try {
+          // TODO: CARREGAR FEED
+          const feedPublicacoes = await carregarFeed(newer, older)
+          return feedPublicacoes
+        } catch (error) {
+          console.error('Erro ao carregar o feed:', error)
+          set.status = 'Internal Server Error'
+        }
+      },
+      {
+        query: t.Object({
+          newer: t.Optional(t.Date()),
+          older: t.Optional(t.Date()),
+        }),
+      },
+    )
     .get('/:id', async ({ params: { id }, set }) => {
       const publicacao = await findOne(id)
       if (publicacao) {

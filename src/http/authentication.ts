@@ -53,6 +53,7 @@ export const authentication = new Elysia()
         // console.log(cookie.auth)
       },
       signOut: () => {
+        delete cookie.auth
         removeCookie('auth')
       },
     }

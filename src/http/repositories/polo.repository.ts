@@ -2,32 +2,27 @@ import prisma from '@/database/prisma'
 import { AddPoloDTO, UpdatePoloDTO } from '../dtos/polos'
 
 class PoloRepository {
-  // Função auxiliar para tratar como vai ser o retorno de participante sem repetir código
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private poloReturn(polo: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { senha, ...usuario } = polo.usuario
-    return {
-      ...polo,
-      usuario: {
-        usuario,
-      },
-    }
-  }
-
   async findAll() {
     const polos = await prisma.polo.findMany({
-      include: { usuario: { include: { perfilImagem: true } } },
+      include: {
+        usuario: {
+          select: { id: true, usuario: true, perfilImagem: true },
+        },
+      },
     })
-    return polos.map(this.poloReturn)
+    return polos
   }
 
   async findById(id: string) {
     const polo = await prisma.polo.findUnique({
       where: { id },
-      include: { usuario: { include: { perfilImagem: true } } },
+      include: {
+        usuario: {
+          select: { id: true, usuario: true, perfilImagem: true },
+        },
+      },
     })
-    return this.poloReturn(polo)
+    return polo
   }
 
   // TODO: Handle Image
@@ -39,9 +34,13 @@ class PoloRepository {
         numero: data.numero,
         usuario: { create: { usuario: data.usuario, senha } },
       },
-      include: { usuario: { include: { perfilImagem: true } } },
+      include: {
+        usuario: {
+          select: { id: true, usuario: true, perfilImagem: true },
+        },
+      },
     })
-    return this.poloReturn(newPolo)
+    return newPolo
   }
 
   async removeById(id: string) {
@@ -76,10 +75,14 @@ class PoloRepository {
           update: { usuario: data.usuario, senha },
         },
       },
-      include: { usuario: { include: { perfilImagem: true } } },
+      include: {
+        usuario: {
+          select: { id: true, usuario: true, perfilImagem: true },
+        },
+      },
     })
 
-    return this.poloReturn(updatedPolo)
+    return updatedPolo
   }
 }
 

@@ -38,9 +38,9 @@ class UserRepository {
     // Se for um participante de comissão que está trocando a imagem de perfil do polo
     const usuarioId =
       tipo && tipo === '1' && user.participante?.comissao
-        ? user.polo.usuarioId
+        ? user.polo?.usuarioId
         : id
-    const poloUser = await this.findById(user.polo.usuarioId)
+    const poloUser = user.polo ? await this.findById(user.polo.usuarioId) : null
     const oldImage =
       poloUser && tipo && tipo === '1' && user.participante?.comissao
         ? poloUser.perfilImagem?.nome
@@ -69,8 +69,8 @@ class UserRepository {
       return
     }
     if (tipo && tipo === '1' && user.participante?.comissao) {
-      const usuarioId = user.polo.usuarioId
-      const userImage = await this.findById(usuarioId)
+      const usuarioId = user.polo?.usuarioId
+      const userImage = usuarioId ? await this.findById(usuarioId) : null
       if (userImage && userImage.perfilImagem?.nome) {
         imageRepository.remove(userImage.perfilImagem?.nome)
         return true

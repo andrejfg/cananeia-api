@@ -6,35 +6,27 @@ import {
 import poloRepository from './polo.repository'
 
 class ParticipanteRepository {
-  // Função auxiliar para tratar como vai ser o retorno de participante sem repetir código
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private participanteReturn(participante: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { senha, ...usuario } = participante.usuario
-    return {
-      ...participante,
-      usuario: {
-        usuario,
-      },
-    }
-  }
-
   async findAll() {
     const participantes = await prisma.participante.findMany({
-      include: { polo: true, usuario: { include: { perfilImagem: true } } },
+      include: {
+        polo: true,
+        usuario: { select: { id: true, usuario: true, perfilImagem: true } },
+      },
     })
-    return participantes.map(this.participanteReturn)
+    return participantes
   }
 
   async findById(id: string) {
     const participante = await prisma.participante.findFirst({
       where: { id },
-      include: { polo: true, usuario: { include: { perfilImagem: true } } },
+      include: {
+        polo: true,
+        usuario: { select: { id: true, usuario: true, perfilImagem: true } },
+      },
     })
-    return this.participanteReturn(participante)
+    return participante
   }
 
-  // TODO: IMAGE
   async add(data: AddParticipanteDTO) {
     const poloData = await poloRepository.findById(data.poloId)
     if (!poloData) {
@@ -52,10 +44,13 @@ class ParticipanteRepository {
           connect: poloData,
         },
       },
-      include: { polo: true, usuario: { include: { perfilImagem: true } } },
+      include: {
+        polo: true,
+        usuario: { select: { id: true, usuario: true, perfilImagem: true } },
+      },
     })
 
-    return this.participanteReturn(newParticipante)
+    return newParticipante
   }
 
   async removeById(id: string) {
@@ -68,7 +63,6 @@ class ParticipanteRepository {
     }
   }
 
-  // TODO: IMAGE
   async updateById(id: string, data: UpdateParticipanteDTO) {
     const participante = await this.findById(id)
 
@@ -106,10 +100,13 @@ class ParticipanteRepository {
           update: { usuario: data.usuario, senha },
         },
       },
-      include: { polo: true, usuario: { include: { perfilImagem: true } } },
+      include: {
+        polo: true,
+        usuario: { select: { id: true, usuario: true, perfilImagem: true } },
+      },
     })
 
-    return this.participanteReturn(updatedParticipante)
+    return updatedParticipante
   }
 }
 

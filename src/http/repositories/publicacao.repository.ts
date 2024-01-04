@@ -3,10 +3,52 @@ import { AddPublicacaoDTO } from '../dtos/publicacao/addPublicacao.dto'
 import { findById } from '../handlers/user.handle'
 import imageRepository from './image.repository'
 import { UpdatePublicacaoDTO } from '../dtos/publicacao/updatePublicacao.dto'
+import userRepository from './user.repository'
 
 class PublicacaoRepository {
   async findAll() {
     return await prisma.publicacao.findMany({ include: { imagem: true } })
+  }
+
+  async getFeed(lastOne?: Date, newerOne?: Date) {
+    return await prisma.publicacao.findMany({
+      where: { acceptedAt: { gt: lastOne, lt: newerOne }, aceito: true },
+      orderBy: { acceptedAt: 'desc' },
+      include: {
+        imagem: true,
+        participante: {
+          include: {
+            polo: true,
+            usuario: { select: { usuario: true, perfilImagem: true } },
+          },
+        },
+        polo: {
+          include: {
+            usuario: { select: { usuario: true, perfilImagem: true } },
+          },
+        },
+      },
+      take: 5,
+    })
+  }
+
+  async findByUser(id: string, tipo?: string) {
+    const user = await userRepository.findById(id)
+    if (!user) return
+    if (
+      (user.polo && tipo === '1') ||
+      (tipo === '1' && user.participante && user.participante?.comissao)
+    )
+      return await prisma.publicacao.findMany({
+        where: { poloId: user.polo?.id },
+        include: { imagem: true },
+      })
+    else if (tipo === '0' && user.participante) {
+      return await prisma.publicacao.findMany({
+        where: { participanteId: user.participante.id },
+        include: { imagem: true },
+      })
+    }
   }
 
   async findById(id: string) {
@@ -25,7 +67,7 @@ class PublicacaoRepository {
     // Se a publicação for de polo, mas foi feito por um participante que não é comissao:ERRO
     // Se a publicação for de polo, mas não tem polo: ERRO
     if (
-      !user.polo ||
+      (!user.polo && data.tipo === '1') ||
       (data.tipo === '1' && user.participante && !user.participante?.comissao)
     )
       return
@@ -66,7 +108,7 @@ class PublicacaoRepository {
   async updateById(id: string, data: UpdatePublicacaoDTO) {
     return await prisma.publicacao.update({
       where: { id },
-      data: { descricao: data.descricao },
+      data: { ...data, acceptedAt: data.aceito ? new Date() : null },
     })
   }
 }
