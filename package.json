@@ -4,6 +4,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/http/server.ts",
+    "start": "bun run src/http/server.ts",
     "migrate": "bunx prisma migrate dev",
     "lint": "bun eslint src --ext .ts --fix"
   },
