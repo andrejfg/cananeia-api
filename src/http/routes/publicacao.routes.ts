@@ -18,9 +18,6 @@ import {
 export const publicacaoRoutes = new Elysia().group('/publicacao', (app) =>
   app
     .use(authentication)
-    .onError(({ body }) => {
-      console.log(body)
-    })
     .get('/', async () => {
       return await findAll()
     })
@@ -72,7 +69,6 @@ export const publicacaoRoutes = new Elysia().group('/publicacao', (app) =>
     .post(
       '/',
       async ({ body, set, getCurrentUser }) => {
-        console.log(body)
         const user = await getCurrentUser()
         const publicacao = await add({ ...body, id: user.sub })
         if (publicacao) {
