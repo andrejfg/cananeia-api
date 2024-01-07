@@ -17,6 +17,7 @@ import { existsSync, mkdirSync } from 'fs'
 if (!existsSync('public')) {
   mkdirSync('public')
 }
+export const pathToPublic = import.meta.dir + '/../../public'
 
 export const app = new Elysia()
   .use(swagger())

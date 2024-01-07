@@ -5,6 +5,9 @@ import { findById } from './user.handle'
 export async function findAll() {
   return await publicacaoRepository.findAll()
 }
+export async function findAllPending() {
+  return await publicacaoRepository.findAllPending()
+}
 
 export async function findMine(id: string, tipo?: string) {
   return await publicacaoRepository.findByUser(id, tipo)

@@ -10,10 +10,9 @@ class PublicacaoRepository {
     return await prisma.publicacao.findMany({ include: { imagem: true } })
   }
 
-  async getFeed(lastOne?: Date, newerOne?: Date) {
+  async findAllPending() {
     return await prisma.publicacao.findMany({
-      where: { acceptedAt: { gt: lastOne, lt: newerOne }, aceito: true },
-      orderBy: { acceptedAt: 'desc' },
+      where: { aceito: false },
       include: {
         imagem: true,
         participante: {
@@ -28,7 +27,29 @@ class PublicacaoRepository {
           },
         },
       },
-      take: 5,
+      orderBy: { createdAt: 'desc' },
+    })
+  }
+
+  async getFeed(lastOne?: Date, newerOne?: Date) {
+    return await prisma.publicacao.findMany({
+      where: { acceptedAt: { gt: lastOne, lt: newerOne }, aceito: true },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        imagem: true,
+        participante: {
+          include: {
+            polo: true,
+            usuario: { select: { usuario: true, perfilImagem: true } },
+          },
+        },
+        polo: {
+          include: {
+            usuario: { select: { usuario: true, perfilImagem: true } },
+          },
+        },
+      },
+      // take: 5,
     })
   }
 
@@ -75,25 +96,29 @@ class PublicacaoRepository {
     if (data.tipo === '0') {
       const usuarioId = user.participante?.id
       const imagem = await imageRepository.add(data)
-      const publicacao = await prisma.publicacao.create({
-        data: {
-          descricao: data.descricao,
-          participante: { connect: { id: usuarioId } },
-          imagem: { connect: { nome: imagem.nome } },
-        },
-      })
-      return publicacao
+      if (imagem) {
+        const publicacao = await prisma.publicacao.create({
+          data: {
+            descricao: data.descricao,
+            participante: { connect: { id: usuarioId } },
+            imagem: { connect: { nome: imagem.nome } },
+          },
+        })
+        return publicacao
+      }
     } else if (data.tipo === '1') {
       const usuarioId = user.polo?.id
       const imagem = await imageRepository.add(data)
-      const publicacao = await prisma.publicacao.create({
-        data: {
-          descricao: data.descricao,
-          polo: { connect: { id: usuarioId } },
-          imagem: { connect: { nome: imagem.nome } },
-        },
-      })
-      return publicacao
+      if (imagem) {
+        const publicacao = await prisma.publicacao.create({
+          data: {
+            descricao: data.descricao,
+            polo: { connect: { id: usuarioId } },
+            imagem: { connect: { nome: imagem.nome } },
+          },
+        })
+        return publicacao
+      }
     }
   }
 

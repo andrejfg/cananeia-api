@@ -4,6 +4,7 @@ import {
   add,
   carregarFeed,
   findAll,
+  findAllPending,
   findMine,
   findOne,
   remove,
@@ -17,8 +18,14 @@ import {
 export const publicacaoRoutes = new Elysia().group('/publicacao', (app) =>
   app
     .use(authentication)
+    .onError(({ body }) => {
+      console.log(body)
+    })
     .get('/', async () => {
       return await findAll()
+    })
+    .get('/pending', async () => {
+      return await findAllPending()
     })
     .get(
       '/my',
@@ -65,6 +72,7 @@ export const publicacaoRoutes = new Elysia().group('/publicacao', (app) =>
     .post(
       '/',
       async ({ body, set, getCurrentUser }) => {
+        console.log(body)
         const user = await getCurrentUser()
         const publicacao = await add({ ...body, id: user.sub })
         if (publicacao) {

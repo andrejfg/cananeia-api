@@ -5,6 +5,7 @@ import sharp from 'sharp'
 import { extname, resolve } from 'path'
 import { randomUUID } from 'crypto'
 import { unlinkSync } from 'fs'
+import { pathToPublic } from '../server'
 
 class ImageRepository {
   async add({ image, proporcao }: AddImageDTO) {
@@ -24,10 +25,16 @@ class ImageRepository {
       2,
     )
 
-    const newImage = await prisma.imagem.create({
-      data: { hash, proporcao, nome },
-    })
-    return newImage
+    const teste = await Bun.write(
+      pathToPublic.concat('/' + nome),
+      await image.arrayBuffer(),
+    )
+    if (teste) {
+      const newImage = await prisma.imagem.create({
+        data: { hash, proporcao, nome },
+      })
+      return newImage
+    }
   }
 
   async remove(nome: string) {

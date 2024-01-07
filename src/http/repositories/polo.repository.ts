@@ -18,7 +18,7 @@ class PoloRepository {
       where: { id },
       include: {
         usuario: {
-          select: { id: true, usuario: true, perfilImagem: true },
+          select: { id: true, usuario: true, perfilImagem: true, polo: true },
         },
       },
     })

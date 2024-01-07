@@ -26,21 +26,12 @@ export const adminRoutes = new Elysia()
       ),
     },
   )
-  .put(
-    '/aceitar',
-    async ({ body: { publicacaoId }, set, isComissao }) => {
-      await isComissao()
-      const publicacao = await aceitarPublicacao(publicacaoId)
-      console.log(publicacao)
-      if (publicacao) {
-        return publicacao
-      } else {
-        set.status = 'Not Found'
-      }
-    },
-    {
-      body: t.Object({
-        publicacaoId: t.String(),
-      }),
-    },
-  )
+  .put('/aceitar/:id', async ({ params: { id }, set, isComissao }) => {
+    await isComissao()
+    const publicacao = await aceitarPublicacao(id)
+    if (publicacao) {
+      return publicacao
+    } else {
+      set.status = 'Not Found'
+    }
+  })

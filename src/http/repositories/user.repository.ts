@@ -6,22 +6,27 @@ class UserRepository {
   async findById(id: string) {
     const user = await prisma.usuario.findUnique({
       where: { id },
-      include: { participante: true, polo: true, perfilImagem: true },
+      select: {
+        id: true,
+        usuario: true,
+        participante: { include: { polo: true } },
+        polo: true,
+        perfilImagem: true,
+      },
     })
     if (user) {
       // desestruturando a senha da apresentação
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { senha, ...dados } = user
       if (
         user.participante &&
         user.participante.comissao &&
         user.participante.poloId
       ) {
         const polo = await poloRepository.findById(user.participante.poloId)
-        return { ...dados, polo }
+        return { ...user, polo }
       } else {
         // se for acesso de polo ou participante comum, login normal
-        return dados
+        return user
       }
     }
   }
@@ -81,7 +86,6 @@ class UserRepository {
         return true
       }
     }
-    console.log('teste 6')
   }
 }
 
