@@ -1,4 +1,4 @@
-import Elysia from 'elysia'
+import Elysia, { t } from 'elysia'
 import { authentication } from '../authentication'
 import { changeImage, findById, removeImage } from '../handlers/user.handle'
 import { add } from '../handlers/upload.handle'
@@ -19,12 +19,18 @@ export const userRoutes = new Elysia()
   })
   .post(
     '/user/imagem',
-    async ({ set, body: { image, tipo }, getCurrentUser, isComissao }) => {
+    async ({
+      set,
+      query: { tipo },
+      body: { image },
+      getCurrentUser,
+      isComissao,
+    }) => {
       // const { tipo } = paramsSchema.parse(params)
       const payloadJWT = await getCurrentUser()
       if (tipo === '1') await isComissao()
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const imagem = await add({ image })
+      const imagem = await add({ image, proporcao: '1/1' })
       if (imagem) {
         const novoUsuario = await changeImage(payloadJWT.sub, imagem, tipo)
         if (novoUsuario) {
@@ -37,6 +43,11 @@ export const userRoutes = new Elysia()
       }
     },
     {
+      query: t.Optional(
+        t.Object({
+          tipo: t.Optional(t.String()),
+        }),
+      ),
       body: AddUserImageSchema,
     },
   )

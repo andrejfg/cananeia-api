@@ -8,7 +8,7 @@ import { unlinkSync } from 'fs'
 import { pathToPublic } from '../server'
 
 class ImageRepository {
-  async add({ image, proporcao }: AddImageDTO) {
+  async add({ image, proporcao = '1/1' }: AddImageDTO) {
     const prefix = randomUUID()
     const extension = extname(image.name)
     const nome = prefix.concat(extension)
