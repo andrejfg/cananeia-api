@@ -35,19 +35,16 @@ class UserRepository {
     const user = await this.findById(id)
     // Erro se não existir usuario
     // Erro se o participante inventar de trocar a imagem do polo, mas não é comissão
-    if (!user || (tipo && tipo === '1' && !user.participante?.comissao)) {
+    if (!user) {
       imageRepository.remove(imageId)
       return
     }
 
     // Se for um participante de comissão que está trocando a imagem de perfil do polo
-    const usuarioId =
-      tipo && tipo === '1' && user.participante?.comissao
-        ? user.polo?.usuarioId
-        : id
+    const usuarioId = tipo && tipo === '1' ? user.polo?.usuarioId : id
     const poloUser = user.polo ? await this.findById(user.polo.usuarioId) : null
     const oldImage =
-      poloUser && tipo && tipo === '1' && user.participante?.comissao
+      poloUser && tipo && tipo === '1'
         ? poloUser.perfilImagem?.nome
         : user.perfilImagem?.nome
 
