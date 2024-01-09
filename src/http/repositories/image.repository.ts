@@ -1,29 +1,30 @@
 import prisma from '@/database/prisma'
 import { AddImageDTO } from '../dtos/upload/addImage.dto'
-import { encode } from 'blurhash'
-import sharp from 'sharp'
+// import { encode } from 'blurhash'
+// import sharp from 'sharp'
 import { extname, resolve } from 'path'
 import { randomUUID } from 'crypto'
 import { unlinkSync } from 'fs'
 import { pathToPublic } from '../server'
+const blurhash = 'AGF5?xYk@-5c'
 
 class ImageRepository {
   async add({ image, proporcao = '1/1' }: AddImageDTO) {
     const prefix = randomUUID()
     const extension = extname(image.name)
     const nome = prefix.concat(extension)
-    const { data, info } = await sharp(await image.arrayBuffer())
-      .ensureAlpha()
-      .raw()
-      .toBuffer({ resolveWithObject: true })
+    // const { data, info } = await sharp(await image.arrayBuffer())
+    //   .ensureAlpha()
+    //   .raw()
+    //   .toBuffer({ resolveWithObject: true })
 
-    const hash = encode(
-      new Uint8ClampedArray(data),
-      info.width,
-      info.height,
-      2,
-      2,
-    )
+    // const hash = encode(
+    //   new Uint8ClampedArray(data),
+    //   info.width,
+    //   info.height,
+    //   2,
+    //   2,
+    // )
 
     const teste = await Bun.write(
       pathToPublic.concat('/' + nome),
@@ -31,7 +32,7 @@ class ImageRepository {
     )
     if (teste) {
       const newImage = await prisma.imagem.create({
-        data: { hash, proporcao, nome },
+        data: { hash: blurhash, proporcao, nome },
       })
       return newImage
     }
