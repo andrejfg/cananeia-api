@@ -21,7 +21,7 @@ class ImageRepository {
       new Uint8ClampedArray(data),
       info.width,
       info.height,
-      3,
+      2,
       2,
     )
 
