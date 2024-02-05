@@ -11,6 +11,7 @@ class ImageRepository {
     const prefix = randomUUID()
     const extension = extname(image.name)
     const nome = prefix.concat(extension)
+    console.log(image.type)
     // const { data, info } = await sharp(await image.arrayBuffer())
     //   .ensureAlpha()
     //   .raw()
