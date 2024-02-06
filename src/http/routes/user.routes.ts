@@ -4,6 +4,7 @@ import { changeImage, findById, removeImage } from '../handlers/user.handle'
 import { add } from '../handlers/upload.handle'
 import { AddUserImageSchema } from '../dtos/user/addUserImage.dto'
 import { RemoveUserImageSchema } from '../dtos/user/removeUserImage.dto'
+import { uploadToDrive } from '@/utils/uploadToDrive'
 
 export const userRoutes = new Elysia()
   .use(authentication)
