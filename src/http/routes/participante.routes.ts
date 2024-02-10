@@ -42,10 +42,7 @@ export const participanteRoutes = new Elysia().group('/participante', (app) =>
     })
     .post(
       '/',
-      async ({ body, set, isComissao }) => {
-        if (body.comissao) {
-          await isComissao()
-        }
+      async ({ body, set }) => {
         const participante = await add(body)
         try {
           if (participante) {
