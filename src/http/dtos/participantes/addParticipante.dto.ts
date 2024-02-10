@@ -6,6 +6,7 @@ export const AddParticipanteSchema = t.Object({
   senha: t.String(),
   perfilUrl: t.Optional(t.String()),
   poloId: t.String(),
+  comissao: t.Optional(t.Boolean()),
 })
 
 export type AddParticipanteDTO = Static<typeof AddParticipanteSchema>

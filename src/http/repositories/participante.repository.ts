@@ -37,6 +37,7 @@ class ParticipanteRepository {
     const newParticipante = await prisma.participante.create({
       data: {
         nome: data.nome,
+        comissao: data.comissao,
         usuario: {
           create: { usuario: data.usuario, senha },
         },
