@@ -1,9 +1,11 @@
 import prisma from '@/database/prisma'
 import { AddImageDTO } from '../dtos/upload/addImage.dto'
-import { extname, resolve } from 'path'
+import { extname } from 'path'
 import { randomUUID } from 'crypto'
-import { unlinkSync } from 'fs'
 import { pathToPublic } from '../server'
+import { uploadToDrive } from '@/utils/uploadToDrive'
+import { driveService } from '@/utils/driverService'
+
 const hash = 'AGF5?xYk@-5c'
 
 class ImageRepository {
@@ -11,35 +13,21 @@ class ImageRepository {
     const prefix = randomUUID()
     const extension = extname(image.name)
     const nome = prefix.concat(extension)
-    // const { data, info } = await sharp(await image.arrayBuffer())
-    //   .ensureAlpha()
-    //   .raw()
-    //   .toBuffer({ resolveWithObject: true })
+    const imageId = await uploadToDrive(nome, image)
 
-    // const hash = encode(
-    //   new Uint8ClampedArray(data),
-    //   info.width,
-    //   info.height,
-    //   2,
-    //   2,
-    // )
-
-    const teste = await Bun.write(
-      pathToPublic.concat('/' + nome),
-      await image.arrayBuffer(),
-    )
-    if (teste) {
+    if (imageId) {
       const newImage = await prisma.imagem.create({
-        data: { hash, proporcao, nome },
+        data: { hash, proporcao, nome: imageId },
       })
       return newImage
     }
   }
 
   async remove(nome: string) {
+    driveService.files.delete({ fileId: nome })
     await prisma.imagem.delete({ where: { nome } })
-    const folderPrefix = resolve(import.meta.dir, '../../../', 'public')
-    unlinkSync(resolve(folderPrefix, nome))
+    // const folderPrefix = resolve(import.meta.dir, '../../../', 'public')
+    // unlinkSync(resolve(folderPrefix, nome))
   }
 }
 

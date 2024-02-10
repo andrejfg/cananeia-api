@@ -22,17 +22,21 @@ export const userRoutes = new Elysia()
     async ({
       set,
       query: { tipo },
-      body: { image },
+      body: { image, user },
       getCurrentUser,
       isComissao,
     }) => {
       // const { tipo } = paramsSchema.parse(params)
-      const payloadJWT = await getCurrentUser()
+      let userSub = user
+      if (!userSub) {
+        const payloadJWT = await getCurrentUser()
+        userSub = payloadJWT.sub
+      }
       if (tipo === '1') await isComissao()
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const imagem = await add({ image, proporcao: '1/1' })
-      if (imagem) {
-        const novoUsuario = await changeImage(payloadJWT.sub, imagem, tipo)
+      if (imagem && userSub) {
+        const novoUsuario = await changeImage(userSub, imagem, tipo)
         if (novoUsuario) {
           return novoUsuario
         } else {
