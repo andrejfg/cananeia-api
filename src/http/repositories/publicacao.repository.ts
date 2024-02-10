@@ -49,7 +49,7 @@ class PublicacaoRepository {
           },
         },
       },
-      // take: 5,
+      take: 5,
     })
   }
 
